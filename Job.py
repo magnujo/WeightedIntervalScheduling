@@ -1,3 +1,7 @@
+import bisect
+import sys
+
+
 class Job:
     def __init__(self, start, finish, profit, index):
         self.start = start
@@ -17,29 +21,90 @@ class Job:
             return False
 
 
-j1 = Job(1, 2, 3, 0)
-j2 = Job(3, 4, 2, 1)
-j3 = Job(2, 5, 3, 2)
-j4 = Job(1, 6, 6, 3)
-j5 = Job(4, 7, 10, 4)
+def parseAndSort():
+    l = []
+    for i in range(int(input())):
+        s, f, w = input().split()
+        l.append((int(s), int(f), int(w)))
+    l.sort(key=lambda x: x[1])
+    print(l)
+    return l
 
-jobs = [j1, j2, j3, j4, j5]
 
 
-def p(jlist, index):
-    i = index
-    while i >= 0:
-        if jlist[index].isOverlapping(jobs[i]):
-            print("if")
-            i -= 1
+
+
+
+
+def previousIntervals (jlist):
+    p = []
+    start = [job[0] for job in jlist]
+    end = [job[1] for job in jlist]
+    # end = [2, 4, 5, 6, 7]
+    # start [1, 3, 2, 1, 4]
+    # p = [-1, 0, 0, -1, 1]
+    for i in range(len(jlist)):
+        index = bisect.bisect(end, start[i]) - 1
+        p.append(index)
+    print(p)
+    return p
+
+
+def M_Compute_Opt(j):
+    if j == -1:
+        return 0
+
+    elif (0 <= j) and (j < len(M)):
+        return M[j]
+
+    else:
+        return max(jobs[j][2] + M_Compute_Opt(p[j]), M_Compute_Opt(j - 1))
+
+def Find_Solution(j):
+    if j == -1:
+        return
+    else:
+        if jobs[j][2] + M[p[j]] >= M[j - 1]:
+            O.append(jobs[j])
+            Find_Solution(p[j])
         else:
-            print("else")
-            return i
-    print("end")
-    return 0
+            Find_Solution(j-1)
+
+def Compute_Opt(j):
+    if j == -1:
+        return 0
+    else:
+        return max(jobs[j][2] + Compute_Opt(p[j]), Compute_Opt(j - 1))
+
+def bestJobs(jobslist):
+    for i in range(len(jobslist)):
+        res = M_Compute_Opt(i)
+        M.append(res)
+
+    Find_Solution(len(jobslist) - 1)
+    return M[-1]
 
 
-print(p(jobs, 4))
+if __name__ == '__main__':
+
+    M = []
+    O = []
+
+    jobs = parseAndSort()
+    p = previousIntervals(jobs)
+    max = bestJobs(jobs)
+
+    print("Best jobs: ", O[::-1])
+    print("Max: ", max)
+
+
+
+
+
+
+
+
+
 
 
 
